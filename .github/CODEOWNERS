@@ -1,0 +1,21 @@
+# Default owner
+* @team-lead
+
+# Backend platform - Member 1
+/backend/app/ @member1
+/scripts/ @member1
+
+# Analysis engine - Member 2
+/backend/analysis/ @member2
+/demo/ @member2
+
+# AI integration - Member 3
+/backend/ai/ @member3
+
+# Frontend - Member 4
+/frontend/ @member4
+/demo/ @member4
+
+# Shared contracts - all members review
+/contracts/ @member1 @member2 @member3 @member4
+/backend/common/ @member1 @member2 @member3 @member4
