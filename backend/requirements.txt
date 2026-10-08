@@ -1,0 +1,46 @@
+# backend/requirements.txt
+# Python 3.14. Install inside a virtual environment:
+#   python -m venv .venv && source .venv/bin/activate   (Windows: .venv\Scripts\activate)
+#   pip install -r requirements.txt
+#
+# Versions below were installed together in a clean environment, smoke-tested, and
+# `pip check` reported no conflicts. Pinned so every teammate gets the same behaviour.
+# To add a package: tell Member 1 (owner of this file), add it here with a pin and a comment.
+
+# --- Web framework and API (Member 1) ---
+fastapi==0.143.0
+uvicorn[standard]==0.54.0          # includes python-dotenv, watchfiles, websockets
+python-multipart==0.0.32           # file uploads (code submissions)
+pydantic==2.14.0
+pydantic-settings==2.15.0          # loads backend/.env into a Settings class
+email-validator==2.3.0             # EmailStr fields
+sse-starlette==3.5.0               # SSE for streaming practice questions (Member 3 yields, Member 1 serves)
+slowapi==0.1.10                    # rate limiting on login and generation endpoints
+
+# --- Database (Member 1) ---
+sqlalchemy==2.1.4
+alembic==1.20.0
+psycopg[binary]==3.3.6             # PostgreSQL driver; URL scheme is postgresql+psycopg://
+
+# --- Auth (Member 1) ---
+pyjwt==2.15.1
+argon2-cffi==25.1.0                # password hashing
+
+# --- Scheduling (Member 1) ---
+apscheduler==3.11.3                # keep on 3.x: 4.x has a different API
+
+# --- Code analysis and execution (Member 2) ---
+tree-sitter==0.26.0                # API changed across versions: use Language(tsp.language()) + Parser(...)
+tree-sitter-python==0.25.0
+radon==6.0.1                       # cyclomatic complexity
+
+# --- LLM, generation and scoring (Member 3) ---
+anthropic==1.12.1
+tenacity==9.2.1                    # retries with backoff
+rapidfuzz==3.14.6                  # answer normalisation and dedupe
+
+# --- Testing and tooling (everyone) ---
+pytest==9.1.1
+pytest-asyncio==1.4.0              # async generators and endpoints (set asyncio_mode = "auto")
+httpx==0.28.1                      # FastAPI TestClient
+ruff==0.16.10                      # lint and format
