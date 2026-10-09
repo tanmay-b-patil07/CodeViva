@@ -1,4 +1,4 @@
-
+﻿
 from __future__ import annotations
 
 import ast
@@ -36,7 +36,7 @@ class PythonAdapter(LanguageAdapter):
                 word in name
                 for word in (
                     "list", "array", "items",
-                    "values", "nums", "elements", "arr",
+                    "values", "nums", "numbers", "elements", "arr",
                 )
             ):
                 return [1]
@@ -69,7 +69,7 @@ class PythonAdapter(LanguageAdapter):
                 word in name
                 for word in (
                     "list", "array", "items",
-                    "values", "nums", "elements", "arr",
+                    "values", "nums", "numbers", "elements", "arr",
                 )
             ):
                 empty_args = list(defaults)
@@ -378,3 +378,4 @@ class PythonAdapter(LanguageAdapter):
             args=args,
             timeout=timeout,
         )
+

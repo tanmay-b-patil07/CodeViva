@@ -83,3 +83,38 @@ def test_javascript_analysis_and_execution():
 def test_unsupported_language_is_rejected():
     with pytest.raises(ValueError, match="Unsupported language"):
         extract_facts("print('hello')", "rust")
+
+def test_java_detects_add_method():
+    code = """
+public class Main {
+    static int add(int a, int b) {
+        return a + b;
+    }
+    public static void main(String[] args) {
+        System.out.println(add(2, 3));
+    }
+}
+"""
+    facts = extract_facts(code, "java")
+
+    assert facts.language == "java"
+    assert any(f.name == "add" for f in facts.functions)
+
+
+def test_go_detects_add_function():
+    code = """
+package main
+
+func add(a int, b int) int {
+    return a + b
+}
+
+func main() {
+    println(add(2, 3))
+}
+"""
+    facts = extract_facts(code, "go")
+
+    assert facts.language == "go"
+    assert any(f.name == "add" for f in facts.functions)
+
