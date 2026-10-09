@@ -506,4 +506,8 @@ class GenericLanguageAdapter(LanguageAdapter):
                 return function.name
 
         return None
+<<<<<<< HEAD
     
+=======
+    
+>>>>>>> origin/nischal

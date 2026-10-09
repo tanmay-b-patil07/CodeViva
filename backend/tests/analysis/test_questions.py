@@ -123,7 +123,8 @@ sum_list([1, 2, 3])
     for question in questions:
         assert question.answer_key is not None
         assert question.question_hash
-
+        
+from backend.analysis import extract_facts, build_deterministic_questions
 
 
 def test_zero_questions_returns_empty_list():
