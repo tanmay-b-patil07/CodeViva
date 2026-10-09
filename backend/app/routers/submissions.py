@@ -1,17 +1,13 @@
 from uuid import UUID
 
 from fastapi import APIRouter, File, Form, UploadFile, status
+from sqlalchemy import select
 
 from app.core.deps import DBSession, StudentUser
 from app.core.errors import AppError
+from app.db.models import Assignment, Submission
 from app.schemas.submissions import SubmissionResponse
 from app.services.analysis_gateway import extract_facts
-from sqlalchemy import select
-
-from app.db.models import Submission
-from sqlalchemy import select
-
-from app.db.models import Submission
 from app.services.submissions import (
     calculate_code_hash,
     create_submission,
@@ -19,7 +15,6 @@ from app.services.submissions import (
     validate_code_size,
     validate_filename,
 )
-
 
 router = APIRouter(
     prefix="/student/submissions",
@@ -38,6 +33,13 @@ async def upload_submission(
     file: UploadFile = File(...),
     assignment_id: UUID | None = Form(default=None),
 ) -> SubmissionResponse:
+    if assignment_id is not None and db.get(Assignment, assignment_id) is None:
+        raise AppError(
+            code="NOT_FOUND",
+            message="Assignment not found.",
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+
     filename = file.filename or ""
 
     validate_filename(filename)
@@ -60,6 +62,8 @@ async def upload_submission(
     code_facts = find_cached_facts(
         db,
         code_hash,
+        student_id=current_user.id,
+        assignment_id=assignment_id,
     )
 
     if code_facts is None:

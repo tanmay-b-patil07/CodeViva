@@ -10,7 +10,6 @@ from sqlalchemy import (
     Index,
     Integer,
     Numeric,
-    String,
     Text,
     UniqueConstraint,
     text,
@@ -20,7 +19,6 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
-
 
 # ---------------------------------------------------------------------------
 # Profiles
@@ -783,28 +781,54 @@ class AttemptResult(Base):
         primary_key=True,
     )
 
-    comprehension_index: Mapped[Decimal] = mapped_column(
+    # Legacy analysis fields are populated by later analysis work, not by the
+    # grading boundary.  They remain optional so a completed grading result
+    # does not have to invent analytics values.
+    comprehension_index: Mapped[Decimal | None] = mapped_column(
         Numeric,
-        nullable=False,
+        nullable=True,
     )
 
-    sub_scores: Mapped[dict] = mapped_column(
+    sub_scores: Mapped[dict | None] = mapped_column(
         JSONB,
-        nullable=False,
+        nullable=True,
     )
 
-    flag_oral_followup: Mapped[bool] = mapped_column(
+    flag_oral_followup: Mapped[bool | None] = mapped_column(
         Boolean,
-        nullable=False,
+        nullable=True,
     )
 
-    needs_review_count: Mapped[int] = mapped_column(
+    needs_review_count: Mapped[int | None] = mapped_column(
         Integer,
-        nullable=False,
+        nullable=True,
     )
+
+    status: Mapped[str] = mapped_column(Text, nullable=False)
+
+    total_score: Mapped[Decimal | None] = mapped_column(Numeric, nullable=True)
+
+    max_score: Mapped[Decimal | None] = mapped_column(Numeric, nullable=True)
+
+    percentage: Mapped[Decimal | None] = mapped_column(Numeric, nullable=True)
+
+    graded_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+    # This is operational-only context; it is deliberately never serialized
+    # through student result schemas.
+    grading_error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     computed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
         server_default=text("now()"),
+    )
+
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('pending', 'grading', 'graded', 'failed')",
+            name="ck_attempt_results_status",
+        ),
     )

@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 from app.core.errors import AppError
 from app.db.models import Submission
 
-
 ALLOWED_EXTENSIONS = {".py"}
 
 # The project documentation requires upload-size validation,
@@ -77,16 +76,23 @@ def validate_code_size(code: str) -> None:
 def find_cached_facts(
     db: Session,
     code_hash: str,
+    *,
+    student_id: UUID,
+    assignment_id: UUID | None,
 ) -> dict | None:
     """
-    Return previously computed facts for the same normalized code hash.
+    Return facts only from the same student's same assignment context.
 
-    This implements the documented analysis cache boundary.
+    Source hashes alone are not an authorization boundary: derived facts can
+    contain user-specific metadata, so cache hits must not cross owners or
+    assignments.
     """
     submission = db.scalar(
         select(Submission)
         .where(
             Submission.code_hash == code_hash,
+            Submission.student_id == student_id,
+            Submission.assignment_id == assignment_id,
             Submission.code_facts.is_not(None),
         )
         .order_by(Submission.created_at.desc())

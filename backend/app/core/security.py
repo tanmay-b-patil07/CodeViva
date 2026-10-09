@@ -6,8 +6,7 @@ import jwt
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
 
-from app.core.config import settings
-
+from app.core.config import settings, validate_jwt_secret
 
 password_hasher = PasswordHasher()
 
@@ -33,6 +32,7 @@ def create_access_token(
     role: str,
 ) -> str:
     """Create a signed JWT containing the user's identity and role."""
+    validate_jwt_secret(settings.environment, settings.jwt_secret)
     now = datetime.now(timezone.utc)
     expires_at = now + timedelta(
         minutes=settings.jwt_expire_minutes
@@ -54,6 +54,7 @@ def create_access_token(
 
 def decode_access_token(token: str) -> dict[str, Any]:
     """Decode and validate a CodeViva JWT."""
+    validate_jwt_secret(settings.environment, settings.jwt_secret)
     return jwt.decode(
         token,
         settings.jwt_secret,

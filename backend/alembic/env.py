@@ -1,13 +1,14 @@
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from app.core.config import settings
+from alembic import context
+from app.core.config import settings, validate_runtime_settings
 from app.db.base import Base
 
-
 config = context.config
+
+validate_runtime_settings(settings)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
