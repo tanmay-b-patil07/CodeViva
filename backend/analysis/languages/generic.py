@@ -107,7 +107,11 @@ class GenericLanguageAdapter(LanguageAdapter):
                     start_line,
                 )
 
-                params = self._parse_params(params_text)
+                params=(
+                self._parse_go_params(params_text)
+                 if self.name == "go"
+                else self._parse_params(params_text)
+                ),
 
                 body = "\n".join(
                     lines[start_line - 1:end_line]
@@ -320,6 +324,16 @@ class GenericLanguageAdapter(LanguageAdapter):
                 r"\s*=\s*"
                 r"\(([^)]*)\)\s*=>\s*\{"
             ),
+            
+# Go function declaration: func add(a int, b int) int {
+re.compile(
+    r"^\s*func\s+"
+    r"([A-Za-z_]\w*)"
+    r"\s*\(([^)]*)\)"
+    r"(?:\s+(?:\*?[A-Za-z_]\w*(?:\[\])?|\[\]\w+))?"
+    r"\s*\{"
+),
+
         ]
 
         for line_number, line in enumerate(lines, start=1):
@@ -379,9 +393,13 @@ class GenericLanguageAdapter(LanguageAdapter):
                     name=name,
                     start_line=line_number,
                     end_line=end_line,
-                    params=self._parse_params(
-                        params_text
-                    ),
+                   
+params=(
+    self._parse_go_params(params_text)
+    if self.name == "go"
+    else self._parse_params(params_text)
+),
+
                     is_recursive=is_recursive,
                     cyclomatic_complexity=max(
                         1,
@@ -395,6 +413,23 @@ class GenericLanguageAdapter(LanguageAdapter):
             )
 
         return results
+    
+    @staticmethod
+    def _parse_go_params(params_text: str) -> list[str]:
+        """Extract parameter names from simple Go declarations."""
+        if not params_text.strip():
+            return []
+
+        params = []
+
+        for item in params_text.split(","):
+            parts = item.strip().split()
+
+            if parts and parts[0].isidentifier():
+                params.append(parts[0])
+
+        return params
+
 
     @staticmethod
     def _extract_calls(
