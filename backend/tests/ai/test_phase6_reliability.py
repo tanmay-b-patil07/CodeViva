@@ -4,12 +4,12 @@ import asyncio
 
 import pytest
 
-import backend.ai.exam as exam_module
-from backend.ai.cache import QuestionCache, question_cache_key
-from backend.ai.config import AIConfig
-from backend.ai.dedupe import hash_for_question, unique_questions
-from backend.ai.exam import ExamGenerationError, generate_exam_questions
-from backend.ai.schemas import QuestionDraft
+import ai.exam as exam_module
+from ai.cache import QuestionCache, question_cache_key
+from ai.config import AIConfig
+from ai.dedupe import hash_for_question, unique_questions
+from ai.exam import ExamGenerationError, generate_exam_questions
+from ai.schemas import QuestionDraft
 
 
 def draft(prompt: str) -> QuestionDraft:

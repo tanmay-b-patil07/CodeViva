@@ -4,7 +4,7 @@ import asyncio
 
 import pytest
 
-from backend.ai.practice import (
+from ai.practice import (
     _code_with_line_numbers,
     stream_practice_questions,
 )

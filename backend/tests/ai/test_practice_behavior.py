@@ -9,16 +9,16 @@ import httpx
 import pytest
 from pydantic import BaseModel
 
-from backend.ai.client import OpenAICompatibleClient, ProviderRequestError
-from backend.ai.config import AIConfig
-from backend.ai.dedupe import hash_for_question
-from backend.ai.practice import (
+from ai.client import OpenAICompatibleClient, ProviderRequestError
+from ai.config import AIConfig
+from ai.dedupe import hash_for_question
+from ai.practice import (
     PracticeGenerationError,
     _question_hash,
     _to_private_question,
     stream_practice_questions,
 )
-from backend.ai.schemas import QuestionDraft
+from ai.schemas import QuestionDraft
 
 
 class FakeCodeFacts(BaseModel):
@@ -323,8 +323,8 @@ def test_live_practice_failure_does_not_fallback_to_another_provider(monkeypatch
 
 
 def test_private_practice_question_uses_member2_sha1_hash():
-    from backend.analysis.models import CodeFacts, QuestionPrivate
-    from backend.analysis.validator import validate_question
+    from analysis.models import CodeFacts, QuestionPrivate
+    from analysis.validator import validate_question
 
     draft = ai_draft("Why is this function used?")
     question = _to_private_question(draft, QuestionPrivate)
@@ -339,8 +339,8 @@ def test_private_practice_question_uses_member2_sha1_hash():
 
 
 def test_member2_validator_rejects_incorrect_question_hash():
-    from backend.analysis.models import CodeFacts, QuestionPrivate
-    from backend.analysis.validator import validate_question
+    from analysis.models import CodeFacts, QuestionPrivate
+    from analysis.validator import validate_question
 
     draft = ai_draft("Why is this function used?")
     question = _to_private_question(draft, QuestionPrivate).model_copy(
@@ -356,7 +356,7 @@ def test_member2_validator_rejects_incorrect_question_hash():
 
 
 def test_dictionary_answer_key_is_rejected_at_member2_boundary():
-    from backend.analysis.models import QuestionPrivate
+    from analysis.models import QuestionPrivate
 
     draft = ai_draft("Why is this function used?")
     draft.answer_key = {"expected": "an explanation"}

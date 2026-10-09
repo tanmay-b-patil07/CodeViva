@@ -4,8 +4,8 @@ import json
 
 import pytest
 
-from backend.ai.schemas import QuestionDraft, Score
-from backend.ai.scoring import (
+from ai.schemas import QuestionDraft, Score
+from ai.scoring import (
     CategoryMappingError,
     ScoringConfigError,
     calculate_comprehension_index,

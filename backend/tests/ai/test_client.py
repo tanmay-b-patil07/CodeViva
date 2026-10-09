@@ -7,7 +7,7 @@ import httpx
 import pytest
 from pydantic import ValidationError
 
-from backend.ai.client import (
+from ai.client import (
     InvalidAIResponseError,
     MockLLMClient,
     OpenAICompatibleClient,
@@ -17,8 +17,8 @@ from backend.ai.client import (
     create_ai_client,
     load_prompt,
 )
-from backend.ai.config import AIConfig
-from backend.ai.schemas import JudgeOutput, QuestionDraft, Score
+from ai.config import AIConfig
+from ai.schemas import JudgeOutput, QuestionDraft, Score
 
 
 def test_mock_client_generates_valid_question():

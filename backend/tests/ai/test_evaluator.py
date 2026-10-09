@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from backend.ai.evaluator import EvaluationError, evaluate_answer
-from backend.ai.schemas import JudgeOutput, QuestionDraft
+from ai.evaluator import EvaluationError, evaluate_answer
+from ai.schemas import JudgeOutput, QuestionDraft
 
 
 def question(*, answer_format="short_text", answer_key="returns sum", rubric=None):

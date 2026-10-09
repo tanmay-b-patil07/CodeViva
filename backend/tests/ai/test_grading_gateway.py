@@ -8,15 +8,15 @@ from uuid import uuid4
 import httpx
 import pytest
 
-from backend.ai.client import OpenAICompatibleClient
-from backend.ai.config import AIConfig
-from backend.ai.schemas import JudgeOutput
-from backend.app.schemas.grading import (
+from ai.client import OpenAICompatibleClient
+from ai.config import AIConfig
+from ai.schemas import JudgeOutput
+from app.schemas.grading import (
     GradingAnswerInput,
     GradingAttemptInput,
     GradingQuestionInput,
 )
-from backend.app.services.grading_gateway import GradingGatewayError, grade_attempt
+from app.services.grading_gateway import GradingGatewayError, grade_attempt
 
 
 def payload(

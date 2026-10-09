@@ -1,8 +1,8 @@
 
 import asyncio
 
-from backend.ai.client import MockLLMClient
-from backend.ai.schemas import QuestionDraft
+from ai.client import MockLLMClient
+from ai.schemas import QuestionDraft
 
 
 def test_mock_client_returns_varied_question_types():

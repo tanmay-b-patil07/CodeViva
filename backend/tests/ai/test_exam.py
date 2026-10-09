@@ -8,13 +8,13 @@ import types
 import httpx
 import pytest
 
-import backend.ai.exam as exam_module
-from backend.ai.client import OpenAICompatibleClient, ProviderRequestError
-from backend.ai.config import AIConfig
-from backend.ai.dedupe import hash_for_question
-from backend.ai.exam import ExamGenerationError, generate_exam_questions
-from backend.ai.schemas import QuestionDraft
-from backend.app.services import exam_generation_gateway
+import ai.exam as exam_module
+from ai.client import OpenAICompatibleClient, ProviderRequestError
+from ai.config import AIConfig
+from ai.dedupe import hash_for_question
+from ai.exam import ExamGenerationError, generate_exam_questions
+from ai.schemas import QuestionDraft
+from app.services import exam_generation_gateway
 
 
 def draft(question_hash: str = "exam-hash", *, line_refs: list[int] | None = None):

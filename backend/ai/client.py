@@ -208,6 +208,16 @@ class OpenAICompatibleClient:
             ) from exc
         if not isinstance(content, str) or not content.strip():
             raise InvalidAIResponseError("Provider response content was empty")
+
+        # Extract JSON from markdown code blocks if present
+        content = content.strip()
+        if content.startswith("```"):
+            # Remove markdown code block wrapper
+            import re
+            match = re.search(r"```(?:json)?\s*(.*?)\s*```", content, re.DOTALL)
+            if match:
+                content = match.group(1).strip()
+
         try:
             return response_model.model_validate(json.loads(content))
         except json.JSONDecodeError as exc:

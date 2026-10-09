@@ -4,11 +4,11 @@ import asyncio
 
 import pytest
 
-from backend.ai.cache import QuestionCache, question_cache_key
-from backend.ai.client import ProviderRequestError
-from backend.ai.dedupe import hash_for_question
-from backend.ai.exam import ExamGenerationError, generate_exam_questions
-from backend.ai.schemas import QuestionDraft
+from ai.cache import QuestionCache, question_cache_key
+from ai.client import ProviderRequestError
+from ai.dedupe import hash_for_question
+from ai.exam import ExamGenerationError, generate_exam_questions
+from ai.schemas import QuestionDraft
 
 CODE = "x = 1\nprint(x)"
 
@@ -49,7 +49,7 @@ def test_exam_combines_valid_deterministic_and_ai_questions(monkeypatch):
     monkeypatch.setattr(
         "backend.ai.exam._deterministic_questions", lambda *_: [deterministic]
     )
-    from backend.ai.exam import exam_cache
+    from ai.exam import exam_cache
 
     exam_cache.clear()
     result = run(CODE, {}, 2, set(), client=SequenceClient([draft("Why print x?")]))
@@ -64,7 +64,7 @@ def test_invalid_and_duplicate_candidates_are_rejected_with_bounded_retries(
     monkeypatch,
 ):
     monkeypatch.setattr("backend.ai.exam._deterministic_questions", lambda *_: [])
-    from backend.ai.exam import exam_cache
+    from ai.exam import exam_cache
 
     exam_cache.clear()
     duplicate = draft("Known question")
@@ -78,7 +78,7 @@ def test_provider_failure_preserves_deterministic_fallback_and_signal(monkeypatc
     monkeypatch.setattr(
         "backend.ai.exam._deterministic_questions", lambda *_: [draft("Deterministic")]
     )
-    from backend.ai.exam import exam_cache
+    from ai.exam import exam_cache
 
     exam_cache.clear()
     result = run(

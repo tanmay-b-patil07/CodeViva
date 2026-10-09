@@ -4,8 +4,8 @@ import asyncio
 
 import pytest
 
-from backend.ai.evaluator import evaluate_answer
-from backend.ai.schemas import JudgeOutput, QuestionDraft
+from ai.evaluator import evaluate_answer
+from ai.schemas import JudgeOutput, QuestionDraft
 
 QUESTION = QuestionDraft(
     type="design_decision",

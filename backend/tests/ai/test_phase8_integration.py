@@ -9,18 +9,18 @@ from uuid import uuid4
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from backend.ai.exam import exam_cache
-from backend.ai.schemas import JudgeOutput, QuestionDraft
-from backend.analysis import extract_facts
-from backend.app.schemas.exam_runtime import QuestionPublic
-from backend.app.schemas.grading import (
+from ai.exam import exam_cache
+from ai.schemas import JudgeOutput, QuestionDraft
+from analysis.analyzer import extract_facts
+from app.schemas.exam_runtime import QuestionPublic
+from app.schemas.grading import (
     GradingAnswerInput,
     GradingAttemptInput,
     GradingQuestionInput,
 )
-from backend.app.services import exam_generation_gateway
-from backend.app.services.grading_gateway import grade_attempt
-from backend.app.services.grading_service import _comprehension_for_result
+from app.services import exam_generation_gateway
+from app.services.grading_gateway import grade_attempt
+from app.services.grading_service import _comprehension_for_result
 
 
 class FakeJudge:
@@ -44,8 +44,8 @@ def test_analysis_facts_flow_through_member1_gateway_to_member3(monkeypatch):
         answer_format="short_text",
         answer_key="O(1)",
     )
-    import backend.ai as backend_ai
-    import backend.ai.exam as backend_exam
+    import ai as backend_ai
+    import ai.exam as backend_exam
 
     monkeypatch.setitem(sys.modules, "ai", backend_ai)
     monkeypatch.setitem(sys.modules, "ai.exam", backend_exam)
