@@ -15,6 +15,7 @@ from app.core.errors import (
     validation_exception_handler,
 )
 from app.routers.student_exam_runtime import router as student_exam_runtime_router
+from app.routers.student_practice import router as student_practice_router
 from app.routers.submissions import router as submissions_router
 from app.routers.teacher_assignments import (
     router as teacher_assignments_router,
@@ -73,15 +74,18 @@ app.include_router(
     prefix=settings.api_prefix,
 )
 
+
 app.include_router(
     teacher_exams_router,
     prefix=settings.api_prefix,
 )
 
+
 app.include_router(
     slot_generation_router,
     prefix=settings.api_prefix,
 )
+
 
 app.include_router(
     teacher_results_router,
@@ -94,15 +98,18 @@ app.add_exception_handler(
     app_error_handler,
 )
 
+
 app.add_exception_handler(
     HTTPException,
     http_exception_handler,
 )
 
+
 app.add_exception_handler(
     RequestValidationError,
     validation_exception_handler,
 )
+
 
 app.add_exception_handler(
     Exception,
@@ -115,8 +122,15 @@ app.include_router(
     prefix=settings.api_prefix,
 )
 
+
 app.include_router(
     student_exam_runtime_router,
+    prefix=settings.api_prefix,
+)
+
+
+app.include_router(
+    student_practice_router,
     prefix=settings.api_prefix,
 )
 

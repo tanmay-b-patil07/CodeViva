@@ -1,0 +1,83 @@
+Architecture summary
+
+CodeViva is a FastAPI backend organized around three boundaries:
+
+- analysis/ extracts code facts and builds/validates deterministic questions.
+- ai/ contains AI schemas, prompt loading, a mock client, and practice generation.
+- app/ owns API routes, database models, and orchestration services. Exam generation and grading call through explicit gateways.
+
+Settings are split: app/core/config.py uses Pydantic Settings and loads backend/.env; ai/config.py reads os.environ directly. The current AI client only implements mock mode. Practice generation combines deterministic questions with validated AI drafts; exam generation and grading are not implemented behind their gateways.
+
+Phases 3–8
+
+I found no project phase plan defining Phases 3–7, so their status cannot be reliably mapped to the code. The repository does contain a Phase 8 test and later phase references; those are evidence of implementation areas, not a substitute phase specification.
+
+Phase | Status from this checkout
+3 | Unspecified. No phase definition found. AI foundation exists on the phase1-ai-foundation branch, but the checkout does not establish its Phase 3 scope.
+4 | Unspecified. No phase definition found.
+5 | Unspecified. No phase definition found.
+6 | Unspecified. No phase definition found.
+7 | Unspecified. No phase definition found.
+8 | Partially evidenced. tests/api/test_teacher_phase8.py exercises teacher assignment, exam, slot, and group ownership flows. The test uses the configured database directly; I did not run it. No Phase 8 acceptance specification was found.
+
+Separate code findings: practice generation and its API exist; exam generation orchestration exists but its ai.exam implementation is absent; grading persistence exists but grading_gateway.grade_attempt raises “not available.” Analysis modules and tests are present.
+
+Provider settings and behavior
+
+The proposed settings do not match the current implementation:
+
+Proposed name | Current implementation
+XAI_API_KEY, AGNES_API_KEY | Not read. AI config reads CODEVIVA_AI_API_KEY; app settings read ANTHROPIC_API_KEY.
+XAI_BASE_URL, AGNES_BASE_URL | Not read or configured.
+XAI_MODEL, AGNES_MODEL | Not read. AI config uses CODEVIVA_MODEL_PRACTICE / CODEVIVA_MODEL_EXAM; app settings use MODEL_PRACTICE / MODEL_EXAM.
+
+.env.example documents Anthropic and the app model variables, but not the CODEVIVA_AI_* variables. The dependency file includes Anthropic and Tenacity, but no xAI or Agnes adapter. Therefore, connecting either proposed provider requires a planned implementation change; provider selection, fallback policy, and which provider serves practice versus exams are not currently defined.
+
+AI JSON validation is through Pydantic response models in the mock client, and practice generation validates candidate question structure and code references. There is no real-provider JSON handling yet. AIConfig defines timeout, retry, and concurrency settings, but the current client does not use them. Practice generation makes up to eight candidate attempts and logs exception types; it has no provider-level timeout/retry behavior. API rate limiting is present as a dependency, but I found no provider rate-limit handling. Exam orchestration records a failed marker per student on failure; grading persists a failed status and error text. Neither gateway currently returns provider errors because neither production adapter exists.
+
+Files likely to change after approval
+
+- ai/config.py, ai/client.py: provider selection, credentials/base URLs/model IDs, JSON decoding/validation, timeouts, retries, and provider error mapping.
+- app/core/config.py, .env.example, requirements.txt: align app configuration and documented variables; add only the chosen provider dependencies.
+- ai/exam.py: implement the generation function expected by app/services/exam_generation_gateway.py.
+- app/services/grading_gateway.py and likely new or existing AI evaluation modules: implement the currently missing grading integration.
+- Relevant tests under tests/ai/ and tests/api/: cover provider routing, schema failures, timeouts/retries, safe errors, and gateway behavior.
+
+These are likely integration points, not a final change list: provider and phase requirements are not specified. analysis/ modules and router code should only change if acceptance criteria reveal a gap.
+
+Tests and safe execution
+
+The AI and analysis tests appear suitable for offline execution; they do not require a provider API call by design. I did not run tests. From backend/, the safe command is:
+
+    .\.venv\Scripts\python.exe -m pytest tests\ai tests\analysis
+
+API tests obtain SessionLocal from the configured DATABASE_URL, and there is no test fixture overriding it. They can mutate the configured database. Do not run them against the database selected by the local .env. Once a disposable, migrated, seeded test database is confirmed, set DATABASE_URL to that database in the same PowerShell session and run targeted API tests, for example:
+
+    $env:DATABASE_URL = 'postgresql+psycopg://<test-user>:<test-password>@<test-host>/<disposable-test-db>'
+    .\.venv\Scripts\python.exe -m pytest tests\api\test_exam_generation.py tests\api\test_grading.py tests\api\test_teacher_phase8.py
+
+The tests do not make real AI calls in the inspected paths: exam and grading tests replace the gateway functions. Keep test credentials out of command history and logs.
+
+Existing changes to preserve
+
+The working tree has modified AI client/config/practice files, prompts, schemas, app startup, and student practice route/schema. It also has untracked AI and practice tests, backend/codecomp_backup.sql, and practice_test_error.txt in the repository parent. I made no changes. Git also reported a permission warning while checking its global ignore file; no secret or environment-file contents were displayed.
+
+Missing specifications
+
+Before implementation, the plan needs the actual Phase 3–8 definitions and acceptance criteria, plus:
+
+- Whether xAI, Agnes, or both are required; provider selection/fallback rules and provider assignment for practice, exams, and grading.
+- Credential, base URL, and model variable names, defaults, precedence, and whether ANTHROPIC_API_KEY remains supported.
+- Required structured-output format and validation/repair behavior; timeout, retry, concurrency, rate-limit, and failure policies.
+- A confirmed disposable test database setup for API tests.
+
+Proposed implementation order
+
+Because phase definitions are missing, this is an order by dependency, not a claim about phase numbering. Each item needs to be mapped to the approved phase plan.
+
+1. Confirm contracts and configuration. Agree on providers, variable names, URLs, models, routing, and failure policies. Acceptance: documented environment contract matches configuration and .env.example, with no credentials committed.
+2. Implement provider client. Add provider adapters and structured JSON validation. Acceptance: offline tests cover provider selection, valid/invalid responses, timeout/retry behavior, and provider errors without network calls.
+3. Connect practice generation. Preserve deterministic-first behavior and existing validation/deduplication. Acceptance: tests verify provider selection, schema/code validation, safe SSE errors, and persisted-question replay.
+4. Implement exam generation. Fulfill the ai.exam.generate_exam_questions contract. Acceptance: gateway tests cover valid output, duplicate avoidance, failures, and persistence isolation per student.
+5. Implement grading. Fulfill the grading gateway contract and existing score bounds/attempt checks. Acceptance: tests cover result validation, failed/pending states, idempotency, and student-safe results.
+6. Map and close Phases 3–8. Once the project supplies phase definitions, map each acceptance criterion to existing code/tests and address only verified gaps. Acceptance: each defined criterion has code and a safe test; undocumented requirements remain explicitly unresolved.

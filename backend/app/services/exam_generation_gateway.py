@@ -24,4 +24,5 @@ async def generate_exam_questions(
     )
     if inspect.isawaitable(result):
         result = await result
-    return list(result)
+    # Preserve list compatibility and the optional server-side fallback flag.
+    return result if isinstance(result, list) else list(result)

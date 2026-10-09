@@ -1,0 +1,11 @@
+TASK: Create one question about a design decision in the submitted code.
+
+Ask about a specific choice visible in the code, such as a data
+structure, loop, function boundary, or algorithmic approach.
+
+Requirements:
+- Reference at least one real source-code line.
+- Ask one clear question, answerable in about one or two minutes.
+- Do not assume the author's intentions unless the code supports them.
+- Supply a rubric with expected points and common misconceptions.
+- Do not provide the answer in the question prompt.

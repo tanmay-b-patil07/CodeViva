@@ -18,7 +18,9 @@ class GradingQuestionInput(BaseModel):
     prompt: str
     type: str
     answer_format: str
-    answer_key: dict | None = None
+    # Phase 3 deterministic questions use scalar answer keys; older app data
+    # may contain a JSON object.  Both are private, server-only inputs.
+    answer_key: str | dict | None = None
     rubric: dict | None = None
     max_score: Decimal
     answer: GradingAnswerInput | None = None

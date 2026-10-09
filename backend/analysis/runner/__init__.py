@@ -1,5 +1,3 @@
-"""analysis/runner/__init__: sandboxed subprocess execution (timeouts, resource limits, cleared environment).
+from .runner import run_code
 
-Owner: Member 2
-Placeholder created by scripts/scaffold.sh. Replace with real code.
-"""
+__all__ = ["run_code"]

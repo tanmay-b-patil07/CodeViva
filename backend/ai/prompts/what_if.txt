@@ -1,0 +1,12 @@
+TASK: Create one counterfactual question about a small change to the
+submitted code.
+
+Ask what would change if a specific condition, statement, input, or
+data structure were modified.
+
+Requirements:
+- The original code and the proposed change must be clear.
+- Ground the question in existing code lines.
+- Do not ask multiple unrelated questions.
+- Do not invent the result of executing the modified program.
+- Include a rubric or deterministic expected answer when justified.
