@@ -8,7 +8,7 @@ def extract_facts(code: str, language: str = "python") -> dict[str, Any]:
     The language-specific analysis adapters provide deterministic code facts.
     """
     try:
-        from analysis import extract_facts as member2_extract_facts
+        from analysis.analyzer import extract_facts as member2_extract_facts
     except ImportError as exc:
         raise RuntimeError(
             "Member 2 analysis package is not available."

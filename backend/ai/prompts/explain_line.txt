@@ -1,0 +1,10 @@
+TASK: Create one question asking the student to explain a specific line
+or short code section.
+
+Requirements:
+- Reference existing line numbers.
+- Ask what the line does or why it matters in this program.
+- Prefer questions that require understanding the actual variables,
+  control flow, or data structures.
+- Provide a concise rubric.
+- Do not invent runtime output or include the answer in the prompt.

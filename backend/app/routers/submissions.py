@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.core.deps import DBSession, StudentUser
 from app.core.errors import AppError
 from app.db.models import (
+    Assignment,
     ExamAttempt,
     ExamQuestion,
     PracticeQuestion,
@@ -110,7 +111,13 @@ def _create_analyzed_submission(
         assignment_instructions = None
 
     code_hash = calculate_code_hash(code)
-    cached_code_facts = find_cached_facts(db, code_hash, language)
+    cached_code_facts = find_cached_facts(
+        db,
+        code_hash,
+        student_id=current_user.id,
+        assignment_id=assignment_id,
+        language=language,
+    )
     submission = Submission(
         assignment_id=assignment_id,
         student_id=current_user.id,
@@ -361,6 +368,13 @@ async def upload_submission(
     file: Annotated[UploadFile, File(...)],
     assignment_id: Annotated[UUID | None, Form()] = None,
 ) -> SubmissionResponse:
+    if assignment_id is not None and db.get(Assignment, assignment_id) is None:
+        raise AppError(
+            code="NOT_FOUND",
+            message="Assignment not found.",
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+
     filename = file.filename or ""
     language = language_for_filename(filename)
     raw = await file.read(DEFAULT_MAX_CODE_BYTES + 1)

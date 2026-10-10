@@ -1,0 +1,40 @@
+Phase 8 report (Member 1)
+
+Completed subphases: 8.3, 8.4, 8.5, 8.6, 8.7, 8.8.
+
+Files created:
+- tests/api/test_teacher_phase8.py
+- tests/api/PHASE8_CODEX_REPORT.txt
+
+Files modified:
+- app/main.py
+- app/routers/teacher_exams.py
+- app/schemas/assignments.py
+- app/schemas/exam.py
+
+Endpoints added/finished:
+- POST and GET /api/teacher/assignments (existing implementation verified and input validation completed)
+- POST and GET /api/teacher/exams
+- POST /api/teacher/exams/{exam_id}/slots
+
+Security and ownership: teacher identity is dependency-derived; request teacher_id is rejected;
+teacher-only guards apply; exam assignments, exams, and optional groups are ownership-scoped.
+
+Slot population: a group-backed slot inserts one SlotStudent per current GroupMember, with a
+NULL submission_id. No client-supplied student list is accepted; the database composite primary
+key protects uniqueness.
+
+Verification run:
+- python -m compileall app tests: passed
+- ruff check on modified Member 1 code: passed
+- python -m pytest -q tests/api/test_teacher_phase8.py: 1 passed
+- python -m pytest -q: 5 passed
+- Uvicorn startup, /health, and Phase 8 OpenAPI route verification: passed
+
+Warnings: pytest could not update the existing .pytest_cache path; PyJWT warns the development
+JWT secret is shorter than its recommended HMAC key length.
+
+Unresolved out-of-scope issue: Member 2 extract_facts integration remains unavailable, as stated
+in the Phase 8 scope; it was not changed.
+
+Confirmation: backend/analysis, backend/ai, frontend, contracts, and docs were not modified.

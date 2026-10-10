@@ -6,6 +6,8 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 class AssignmentCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     title: str = Field(min_length=1, max_length=200)
     description: str | None = None
     instructions: str | None = Field(default=None, max_length=10_000)
@@ -26,6 +28,21 @@ class AssignmentCreate(BaseModel):
             raise ValueError("The deadline must include a timezone.")
         return value
 
+    @field_validator("title")
+    @classmethod
+    def normalize_title(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("title must not be blank.")
+        return normalized
+
+    @field_validator("language")
+    @classmethod
+    def normalize_language(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if not normalized:
+            raise ValueError("language must not be blank.")
+        return normalized
 
 class AssignmentResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)

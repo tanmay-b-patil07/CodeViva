@@ -99,17 +99,23 @@ def validate_code_size(code: str) -> None:
 def find_cached_facts(
     db: Session,
     code_hash: str,
+    *,
+    student_id: UUID,
+    assignment_id: UUID | None,
     language: str = "python",
 ) -> dict | None:
     """
-    Return previously computed facts for the same code hash and language.
-
-    This implements the documented analysis cache boundary.
+    Return facts only from the same student's same assignment and language.
+    Source hashes alone are not an authorization boundary: derived facts can
+    contain user-specific metadata, so cache hits must not cross owners or
+    assignments.
     """
     submission = db.scalar(
         select(Submission)
         .where(
             Submission.code_hash == code_hash,
+            Submission.student_id == student_id,
+            Submission.assignment_id == assignment_id,
             Submission.code_facts.is_not(None),
             Submission.code_facts["language"].astext == language,
         )

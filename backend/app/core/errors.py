@@ -1,10 +1,8 @@
 import logging
-from typing import Any
 
 from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from fastapi import HTTPException, Request
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.status import (
     HTTP_400_BAD_REQUEST,
@@ -15,7 +13,6 @@ from starlette.status import (
     HTTP_422_UNPROCESSABLE_CONTENT,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
-
 
 logger = logging.getLogger("codeviva")
 
@@ -134,11 +131,11 @@ async def unhandled_exception_handler(
     request: Request,
     exc: Exception,
 ) -> JSONResponse:
-    logger.exception(
-        "Unhandled exception while processing %s %s",
+    logger.error(
+        "Unhandled exception while processing %s %s (type=%s)",
         request.method,
         request.url.path,
-        exc_info=exc,
+        type(exc).__name__,
     )
 
     return error_response(

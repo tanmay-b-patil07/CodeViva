@@ -37,3 +37,20 @@ def infinite():
     )
 
     assert result.timed_out is True
+
+
+def test_python_output_limit_is_enforced():
+    code = """
+def noisy():
+    print("x" * 11000)
+"""
+
+    result = run_code(
+        code=code,
+        language="python",
+        function="noisy",
+        timeout=3.0,
+    )
+
+    assert result.exception == "Output limit exceeded."
+    assert result.timed_out is False

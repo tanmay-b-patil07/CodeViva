@@ -1,0 +1,13 @@
+TASK: Create one question about the time or space complexity of the
+submitted code.
+
+Requirements:
+- Ground the question in the actual algorithm and relevant loop or
+  recursion structure.
+- Provide 3 to 5 distinct answer options when using MCQ format.
+- Ensure exactly one option is correct.
+- Do not infer complexity from a function name alone.
+- If the code does not support a reliable complexity conclusion,
+  do not generate the question.
+- Include the relevant line references and a short explanation for
+  internal practice use.

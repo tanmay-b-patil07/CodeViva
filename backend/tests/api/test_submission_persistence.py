@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from app.db.models import Profile, Submission
+from app.db.models import Profile
 from app.db.session import get_db
 from app.services.submissions import (
     calculate_code_hash,
@@ -84,6 +84,8 @@ print(add(2, 3))
         cached_facts = find_cached_facts(
             db,
             code_hash,
+            student_id=student.id,
+            assignment_id=None,
         )
 
         assert cached_facts == fake_code_facts

@@ -77,6 +77,15 @@ def _stop_process_tree(process: subprocess.Popen) -> None:
         except OSError:
             pass
 
+    # taskkill can report success or failure without ending a process in a
+    # restricted Windows execution context. Preserve the process-tree attempt,
+    # but always fall back to terminating the direct child if it survived.
+    if process.poll() is None:
+        try:
+            process.kill()
+        except OSError:
+            pass
+
     try:
         process.wait(timeout=2)
     except subprocess.TimeoutExpired:

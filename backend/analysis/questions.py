@@ -274,13 +274,19 @@ def build_deterministic_questions(
     facts: CodeFacts,
     n: int,
     seed: int,
+    *,
+    allow_in_process_trace: bool = True,
 ) -> list[QuestionPrivate]:
     if n <= 0:
         return []
 
     candidates = [
         _trace_output_question(code, facts),
-        _trace_variable_question(code, facts),
+        (
+            _trace_variable_question(code, facts)
+            if allow_in_process_trace
+            else None
+        ),
         _edge_case_question(code, facts),
     ]
 

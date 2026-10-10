@@ -1,0 +1,21 @@
+{
+  "weights": {
+    "trace": 0.30,
+    "design": 0.25,
+    "explanation": 0.25,
+    "complexity": 0.20
+  },
+  "question_type_categories": {
+    "trace_output": "trace",
+    "trace_variable": "trace",
+    "edge_case": "trace",
+    "design_decision": "design",
+    "explain_line": "explanation",
+    "complexity": "complexity"
+  },
+  "oral_followup": {
+    "index_below": 50,
+    "trace_below": 40,
+    "other_categories_high": null
+  }
+}

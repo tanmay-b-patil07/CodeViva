@@ -541,4 +541,3 @@ params=(
                 return function.name
 
         return None
-    
