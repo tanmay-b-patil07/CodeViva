@@ -1,19 +1,17 @@
-from fastapi import APIRouter, status
-from sqlalchemy import select
-
-from app.core.deps import DBSession, TeacherUser
-from app.db.models import Group
-from app.schemas.groups import GroupCreate, GroupResponse
-from fastapi import APIRouter, HTTPException, status
-from sqlalchemy import select
 from uuid import UUID
 
+from fastapi import APIRouter, HTTPException, status
+from sqlalchemy import select
+
+from app.core.authorization import get_owned_group_or_404
+from app.core.deps import DBSession, TeacherUser
 from app.db.models import Group, GroupMember, Profile
 from app.schemas.groups import (
     GroupCreate,
     GroupMemberAdd,
     GroupMemberResponse,
     GroupResponse,
+    GroupRosterStudent,
 )
 
 router = APIRouter(
@@ -32,22 +30,14 @@ def create_group(
     current_user: TeacherUser,
     db: DBSession,
 ) -> GroupResponse:
-    group = Group(
-        name=payload.name.strip(),
-        teacher_id=current_user.id,
-    )
-
+    group = Group(name=payload.name.strip(), teacher_id=current_user.id)
     db.add(group)
     db.commit()
     db.refresh(group)
-
     return GroupResponse.model_validate(group)
 
 
-@router.get(
-    "",
-    response_model=list[GroupResponse],
-)
+@router.get("", response_model=list[GroupResponse])
 def list_groups(
     current_user: TeacherUser,
     db: DBSession,
@@ -57,11 +47,31 @@ def list_groups(
         .where(Group.teacher_id == current_user.id)
         .order_by(Group.created_at.desc())
     ).all()
+    return [GroupResponse.model_validate(group) for group in groups]
 
+
+@router.get("/{group_id}/members", response_model=list[GroupRosterStudent])
+def list_group_members(
+    group_id: UUID,
+    current_user: TeacherUser,
+    db: DBSession,
+) -> list[GroupRosterStudent]:
+    group = get_owned_group_or_404(db, group_id, current_user.id)
+    members = db.execute(
+        select(Profile.id, Profile.full_name, Profile.email)
+        .join(GroupMember, GroupMember.student_id == Profile.id)
+        .where(GroupMember.group_id == group.id)
+        .order_by(Profile.full_name, Profile.email)
+    ).all()
     return [
-        GroupResponse.model_validate(group)
-        for group in groups
+        GroupRosterStudent(
+            student_id=student_id,
+            full_name=full_name,
+            email=email,
+        )
+        for student_id, full_name, email in members
     ]
+
 
 @router.post(
     "/{group_id}/members",
@@ -74,52 +84,31 @@ def add_group_member(
     current_user: TeacherUser,
     db: DBSession,
 ) -> GroupMemberResponse:
-    group = db.scalar(
-        select(Group).where(
-            Group.id == group_id,
-            Group.teacher_id == current_user.id,
-        )
-    )
-
-    if group is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Group not found.",
-        )
-
+    group = get_owned_group_or_404(db, group_id, current_user.id)
     student = db.scalar(
         select(Profile).where(
             Profile.email == payload.email,
             Profile.role == "student",
         )
     )
-
     if student is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Student not found.",
         )
-
     existing = db.scalar(
         select(GroupMember).where(
-            GroupMember.group_id == group_id,
+            GroupMember.group_id == group.id,
             GroupMember.student_id == student.id,
         )
     )
-
     if existing is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Student is already a member of this group.",
         )
-
-    member = GroupMember(
-        group_id=group_id,
-        student_id=student.id,
-    )
-
+    member = GroupMember(group_id=group.id, student_id=student.id)
     db.add(member)
     db.commit()
     db.refresh(member)
-
     return GroupMemberResponse.model_validate(member)

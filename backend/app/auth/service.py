@@ -1,14 +1,14 @@
 import secrets
-from fastapi import status
 
-from app.core.errors import AppError
+from fastapi import status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.auth.schemas import LoginRequest, RegisterRequest, TeacherRegisterRequest
 from app.core.config import settings
+from app.core.errors import AppError
 from app.core.security import hash_password, verify_password
 from app.db.models import Profile
-from app.auth.schemas import LoginRequest, RegisterRequest, TeacherRegisterRequest
 
 
 def get_user_by_email(
@@ -52,15 +52,22 @@ def register_teacher(
     db: Session,
     data: TeacherRegisterRequest,
 ) -> Profile:
+    configured_invite_code = settings.teacher_invite_code.strip()
+    if not configured_invite_code:
+        raise AppError(
+            code="CONFIGURATION_ERROR",
+            message="Teacher registration is not configured on this server.",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
     if not secrets.compare_digest(
-        data.invite_code,
-        settings.teacher_invite_code,
+        data.invite_code.strip(),
+        configured_invite_code,
     ):
         raise AppError(
             code="FORBIDDEN",
             message="Invalid teacher invite code.",
             status_code=status.HTTP_403_FORBIDDEN,
-            )
+        )
 
     email = str(data.email).lower()
 

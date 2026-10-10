@@ -7,8 +7,21 @@ from sqlalchemy.orm import Session
 from app.core.errors import AppError
 from app.db.models import Submission
 
-
-ALLOWED_EXTENSIONS = {".py"}
+LANGUAGE_EXTENSIONS = {
+    "python": (".py",),
+    "c": (".c",),
+    "cpp": (".cpp", ".cc", ".cxx"),
+    "java": (".java",),
+    "javascript": (".js", ".mjs"),
+    "go": (".go",),
+}
+EXTENSION_LANGUAGES = {
+    extension: language
+    for language, extensions in LANGUAGE_EXTENSIONS.items()
+    for extension in extensions
+}
+ALLOWED_EXTENSIONS = set(EXTENSION_LANGUAGES)
+SUPPORTED_LANGUAGES = tuple(LANGUAGE_EXTENSIONS)
 
 # The project documentation requires upload-size validation,
 # but does not prescribe a numeric limit. Keep it configurable
@@ -40,7 +53,7 @@ def calculate_code_hash(code: str) -> str:
     return f"sha256:{digest}"
 
 
-def validate_filename(filename: str) -> None:
+def language_for_filename(filename: str) -> str:
     filename = filename.strip()
 
     if not filename:
@@ -58,9 +71,18 @@ def validate_filename(filename: str) -> None:
     if extension not in ALLOWED_EXTENSIONS:
         raise AppError(
             code="VALIDATION_ERROR",
-            message="Only Python (.py) files are supported.",
+            message=(
+                "Unsupported source file type. Supported extensions: "
+                + ", ".join(sorted(ALLOWED_EXTENSIONS))
+                + "."
+            ),
             status_code=422,
         )
+    return EXTENSION_LANGUAGES[extension]
+
+
+def validate_filename(filename: str) -> None:
+    language_for_filename(filename)
 
 
 def validate_code_size(code: str) -> None:
@@ -77,9 +99,10 @@ def validate_code_size(code: str) -> None:
 def find_cached_facts(
     db: Session,
     code_hash: str,
+    language: str = "python",
 ) -> dict | None:
     """
-    Return previously computed facts for the same normalized code hash.
+    Return previously computed facts for the same code hash and language.
 
     This implements the documented analysis cache boundary.
     """
@@ -88,6 +111,7 @@ def find_cached_facts(
         .where(
             Submission.code_hash == code_hash,
             Submission.code_facts.is_not(None),
+            Submission.code_facts["language"].astext == language,
         )
         .order_by(Submission.created_at.desc())
     )

@@ -233,10 +233,10 @@ export default function StudentResultsPage() {
               </p>
             </div>
             <Link
-              href="/student/exams"
+              href="/student/assignments"
               className="inline-flex items-center gap-2 text-sm text-lime hover:text-white"
             >
-              Browse assessments <ArrowUpRight size={16} />
+              Browse assignments <ArrowUpRight size={16} />
             </Link>
           </div>
 

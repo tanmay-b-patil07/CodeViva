@@ -27,14 +27,15 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 480
 
     # Teacher registration
-    teacher_invite_code: str = Field(default="choose-a-code")
+    teacher_invite_code: str = Field(default="")
 
-    # Anthropic
-    anthropic_api_key: str = ""
+    # Agnes AI (OpenAI-compatible API)
+    agnes_api_key: str = ""
+    agnes_api_base_url: str = "https://apihub.agnes-ai.com/v1"
 
     # Models
-    model_practice: str = "claude-haiku-4-5-20251001"
-    model_exam: str = "claude-sonnet-5-5"
+    model_practice: str = "agnes-2.5-flash"
+    model_exam: str = "agnes-2.5-flash"
 
     # CORS
     allowed_origins: str = "http://localhost:3000"

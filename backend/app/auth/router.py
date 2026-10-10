@@ -1,5 +1,3 @@
-from fastapi import APIRouter, Response,status
-from app.core.errors import AppError
 from app.auth.schemas import (
     LoginRequest,
     RegisterRequest,
@@ -11,12 +9,14 @@ from app.auth.service import (
     register_student,
     register_teacher,
 )
-from app.core.deps import DBSession, CurrentUser
+from app.core.config import settings
+from app.core.deps import CurrentUser, DBSession
+from app.core.errors import AppError
 from app.core.security import (
     AUTH_COOKIE_NAME,
     create_access_token,
 )
-
+from fastapi import APIRouter, Response, status
 
 router = APIRouter(
     prefix="/auth",
@@ -87,7 +87,7 @@ def login(
         key=AUTH_COOKIE_NAME,
         value=token,
         httponly=True,
-        secure=False,
+        secure=settings.cookie_secure,
         samesite="lax",
         max_age=COOKIE_MAX_AGE,
     )
@@ -100,7 +100,7 @@ def logout(response: Response) -> dict[str, str]:
     response.delete_cookie(
         key=AUTH_COOKIE_NAME,
         httponly=True,
-        secure=False,
+        secure=settings.cookie_secure,
         samesite="lax",
     )
 

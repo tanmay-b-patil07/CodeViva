@@ -26,3 +26,9 @@ class GroupMemberResponse(BaseModel):
 
     group_id: UUID
     student_id: UUID
+
+
+class GroupRosterStudent(BaseModel):
+    student_id: UUID
+    full_name: str
+    email: EmailStr

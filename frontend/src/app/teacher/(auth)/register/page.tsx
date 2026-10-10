@@ -36,16 +36,22 @@ export default function TeacherRegisterPage() {
           full_name: fullName.trim(),
           email: email.trim(),
           password,
-          invite_code: inviteCode,
+          invite_code: inviteCode.trim(),
         }),
       });
 
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(
-          data.message || data.detail || "Unable to create your teacher account."
-        );
+        const message =
+          typeof data?.error?.message === "string"
+            ? data.error.message
+            : typeof data?.message === "string"
+              ? data.message
+              : typeof data?.detail === "string"
+                ? data.detail
+                : "Unable to create your teacher account.";
+        throw new Error(message);
       }
 
       router.push("/teacher/login?registered=1");
@@ -143,6 +149,9 @@ export default function TeacherRegisterPage() {
                 placeholder="Enter your invite code"
                 className="w-full rounded-xl border border-line bg-canvas px-4 py-3 outline-none focus:border-lime"
               />
+              <p className="mt-2 text-xs text-gray-500">
+                Use the code provided by your CodeViva administrator.
+              </p>
             </div>
 
             {error && (
