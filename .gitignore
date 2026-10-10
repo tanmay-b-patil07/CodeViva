@@ -16,3 +16,6 @@ __pycache__
 
 # Demo backups
 demo/backup/
+
+# Backend backups
+backend_backup/
